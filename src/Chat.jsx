@@ -6,7 +6,7 @@ import UserList from "./UserList";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://chat-nodejs-t4wh.onrender.com");
 
 const Chat = () => {
     const [message, setMessage] = useState("");
@@ -25,7 +25,7 @@ const Chat = () => {
         const fetchUsers = async () => {
             setLoading(true);
             try {
-                const response = await axios.get("http://localhost:5000/api/users", {
+                const response = await axios.get("https://chat-nodejs-t4wh.onrender.com/api/users", {
                     headers: { username: user.username },
                 });
                 setUsers(response.data.filter((u) => u.username !== user.username));
@@ -63,7 +63,7 @@ const Chat = () => {
         // Fetch all messages for the selected user
         const fetchConversation = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/messages/conversation", {
+                const response = await axios.get("https://chat-nodejs-t4wh.onrender.com/api/messages/conversation", {
                     params: { user1: user.username, user2: selectedUser.username },
                     headers: { username: user.username },
                 });

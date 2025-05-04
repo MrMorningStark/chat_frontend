@@ -15,7 +15,7 @@ const Login = () => {
         setError("");
 
         try {
-            const response = await axios.post("http://localhost:5000/api/auth/login", {
+            const response = await axios.post("https://chat-nodejs-t4wh.onrender.com/api/auth/login", {
                 username,
                 password,
             });
