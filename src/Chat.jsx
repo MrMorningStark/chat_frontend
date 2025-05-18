@@ -5,8 +5,9 @@ import { useAuth } from "./auth";
 import UserList from "./UserList";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
+import "./Chat.css"; // Add this for custom styles
 
-const socket = io("https://chat-nodejs-t4wh.onrender.com");
+const socket = io("http://localhost:5000");
 
 const Chat = () => {
     const [message, setMessage] = useState("");
@@ -18,14 +19,12 @@ const Chat = () => {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        // Register the user with the socket
         socket.emit("register", user.username);
 
-        // Fetch all users
         const fetchUsers = async () => {
             setLoading(true);
             try {
-                const response = await axios.get("https://chat-nodejs-t4wh.onrender.com/api/users", {
+                const response = await axios.get("http://localhost:5000/api/users", {
                     headers: { username: user.username },
                 });
                 setUsers(response.data.filter((u) => u.username !== user.username));
@@ -38,7 +37,6 @@ const Chat = () => {
 
         fetchUsers();
 
-        // Listen for private messages
         socket.on("private message", (msg) => {
             if (selectedUser && msg.sender === selectedUser.username) {
                 setMessages((prev) => [...prev, msg]);
@@ -51,7 +49,6 @@ const Chat = () => {
     }, [user.username, selectedUser]);
 
     useEffect(() => {
-        // Scroll to the bottom when messages are updated
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
@@ -60,10 +57,9 @@ const Chat = () => {
         setMessages([]);
         setLoading(true);
 
-        // Fetch all messages for the selected user
         const fetchConversation = async () => {
             try {
-                const response = await axios.get("https://chat-nodejs-t4wh.onrender.com/api/messages/conversation", {
+                const response = await axios.get("http://localhost:5000/api/messages/conversation", {
                     params: { user1: user.username, user2: selectedUser.username },
                     headers: { username: user.username },
                 });
@@ -96,38 +92,82 @@ const Chat = () => {
         setMessages([]);
     };
 
+    // Responsive: show both panes on large screens, only one on small screens
     return (
-        <div className="container mt-4 d-flex flex-column" style={{ height: "90vh" }}>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4>
-                    👋 Welcome, <strong>{user.username}</strong>
-                </h4>
+        <div className="chat-app-container">
+            <div className="chat-header">
+                <div className="chat-header-user">
+                    <div className="chat-header-avatar">
+                        {user.avatar
+                            ? <img src={user.avatar} alt={user.username} />
+                            : user.username[0]?.toUpperCase()}
+                    </div>
+                    <span className="chat-header-username">{user.username}</span>
+                </div>
                 <button className="btn btn-danger" onClick={logout}>
                     Logout
                 </button>
             </div>
-
-            {loading && !messages.length ? (
-                <div className="text-center">
-                    <i className="fas fa-spinner fa-spin fa-3x"></i>
-                    <p>Loading...</p>
+            <div className="chat-main">
+                <div className={`chat-sidebar${selectedUser ? " hide-on-mobile" : ""}`}>
+                    <UserList users={users} selectUser={selectUser} activeUser={selectedUser} />
                 </div>
-            ) : !selectedUser ? (
-                <UserList users={users} selectUser={selectUser} />
-            ) : (
-                <>
-                    <MessageList messages={messages} messagesEndRef={messagesEndRef} user={user} />
-                    <MessageInput
-                        message={message}
-                        setMessage={setMessage}
-                        sendMessage={sendMessage}
-                        selectedUser={selectedUser}
-                    />
-                    <button className="btn btn-secondary mt-3" onClick={goBack}>
-                        Back to User List
-                    </button>
-                </>
-            )}
+                <div className={`chat-content${selectedUser ? " show" : ""}`}>
+                    {loading && !messages.length ? (
+                        <div className="text-center">
+                            <i className="fas fa-spinner fa-spin fa-3x"></i>
+                            <p>Loading...</p>
+                        </div>
+                    ) : selectedUser ? (
+                        <>
+                            <div className="chat-content-header">
+                                <button
+                                    className="chat-back-btn"
+                                    onClick={goBack}
+                                    style={{ display: window.innerWidth <= 768 ? "inline-flex" : "none" }}
+                                    aria-label="Back"
+                                >
+                                    <i className="fas fa-chevron-left" />
+                                </button>
+                                <div className="chat-content-user">
+                                    <div className="chat-avatar">
+                                        {selectedUser.avatar
+                                            ? <img src={selectedUser.avatar} alt={selectedUser.username} />
+                                            : selectedUser.username[0]?.toUpperCase()}
+                                        <span
+                                            className="chat-online-dot"
+                                            style={{
+                                                background: selectedUser.online ? "#25d366" : "#bdbdbd",
+                                            }}
+                                        ></span>
+                                    </div>
+                                    <div>
+                                        <div>{selectedUser.username}</div>
+                                        <div style={{ fontSize: "0.85em", color: "#888" }}>
+                                            {selectedUser.online
+                                                ? "Online"
+                                                : selectedUser.lastSeen
+                                                    ? `Last seen ${require("moment")(selectedUser.lastSeen).fromNow()}`
+                                                    : "Offline"}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <MessageList messages={messages} messagesEndRef={messagesEndRef} user={user} selectedUser={selectedUser} />
+                            <MessageInput
+                                message={message}
+                                setMessage={setMessage}
+                                sendMessage={sendMessage}
+                                selectedUser={selectedUser}
+                            />
+                        </>
+                    ) : (
+                        <div className="d-none d-md-flex align-items-center justify-content-center h-100 w-100 text-muted">
+                            <h5>Select a chat to start messaging</h5>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };

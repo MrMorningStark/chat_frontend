@@ -1,0 +1,70 @@
+.userlist-sidebar {
+  background: #f8f9fa;
+  border-right: 1px solid #ece5dd;
+  height: 100vh;
+  width: 260px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.userlist-title {
+  padding: 24px 20px 12px 20px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #075e54;
+  border-bottom: 1px solid #ece5dd;
+  margin-bottom: 0;
+}
+
+.userlist-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.userlist-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid #ece5dd;
+  background: transparent;
+}
+
+.userlist-item:hover,
+.userlist-item.active {
+  background: #e7f6ee;
+}
+
+.userlist-avatar {
+  width: 38px;
+  height: 38px;
+  position: relative;
+  background: #bdbdbd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  margin-right: 14px;
+  font-size: 1.1rem;
+  overflow: hidden;
+  border: 2px solid #ece5dd;
+}
+
+.userlist-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.userlist-name {
+  font-size: 1rem;
+  color: #222;
+  font-weight: 500;
+}
